@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  backend:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      POSTGRES_USERNAME: battlecodes
+      POSTGRES_PASSWORD: aV958MT/_Kcm
+      POSTGRES_JDBC_URL: jdbc:postgresql://database:5432/postgres
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - webnet
+    restart: always
+  database:
+    container_name: database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    image: postgres:16.2-alpine3.19
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - bizkit-database:/var/lib/postgresql/data
+    networks:
+      - webnet
+    restart: always
+  
+volumes:
+  bizkit-database:
+networks:
+  webnet:
